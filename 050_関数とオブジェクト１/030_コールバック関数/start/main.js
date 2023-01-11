@@ -18,4 +18,4 @@ fn(function () {
   console.log("hi");
 });
 
-setTimeout(hello, 1000); // 使いわわしが効くようになる(cbに引数を渡す方法はまた後日)
+setTimeout(hello, 1000); // 使いまわしが効くようになる(cbに引数を渡す方法はまた後日)
