@@ -1,15 +1,24 @@
-window.name = 'John';
+window.name = "John";
 
 const person = {
-    name: 'Tom',
-    hello: function() {
-        console.log('Hello ' + this.name);
-    }
-}
+  name: "Tom",
+  counter: 0,
+  hello: function () {
+    this.counter++;
+    console.log("Hello " + this.name, this.counter);
+  },
+};
 person.hello();
 
 function fn(ref) {
-    ref();
+  ref();
 }
 
-fn(person.hello);
+const helloTom = person.hello.bind(person);
+fn(helloTom);
+
+function a(name) {
+  console.log("hello" + name);
+}
+const b = a.bind(null, "Tim"); // thisまたは引数を固定できる
+b("huga");
