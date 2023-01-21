@@ -27,51 +27,52 @@
 // _は外から操作するな
 class Calculator {
   constructor() {
-    this.count = 0;
+    this.val = null;
     this._operator = "";
   }
-  set(num) {
-    switch (this._operator) {
-      case "plus":
-        this.count = this.count + num;
-        console.log(this.count);
-        break;
-      case "minus":
-        this.count = this.count - num;
-        console.log(this.count);
-        break;
-      case "mutiply":
-        this.count = this.count * num;
-        console.log(this.count);
-        break;
-      case "divide":
-        this.count = this.count / num;
-        console.log(this.count);
-        break;
-      default:
-        this.count = num;
-        break;
+  set(val) {
+    if (this.val === null) {
+      this.val = val;
+    } else {
+      this._operator(this.val, val);
     }
-    this._operator = "";
     return this;
   }
   plus() {
-    this._operator = "plus";
+    // どのような関数を実行すのかを記述する
+    this._operator = function (val1, val2) {
+      const result = val1 + val2;
+      this._equal(result);
+    };
     return this;
   }
   minus() {
-    this._operator = "minus";
+    this._operator = function (val1, val2) {
+      const result = val1 - val2;
+      this._equal(result);
+    };
     return this;
   }
   divide() {
-    this._operator = "divide";
+    this._operator = function (val1, val2) {
+      const result = val1 / val2;
+      this._equal(result);
+    };
     return this;
   }
   mutiply() {
-    this._operator = "mutiply";
+    this._operator = function (val1, val2) {
+      const result = val1 * val2;
+      this._equal(result);
+    };
     return this;
+  }
+  _equal(result) {
+    this.val = result;
+    console.log(result);
   }
 }
 
 const calc = new Calculator();
 calc.set(10).minus().set(3).mutiply().set(6).divide().set(2).plus().set(2);
+// calc.set(10).minus().set(3).mutiply().set(6).divide().set(2).plus().set(2);
