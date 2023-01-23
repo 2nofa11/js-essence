@@ -2,12 +2,14 @@
 // 列挙可能プロパティに対して順不同で繰り返す
 
 const s = Symbol();
-const obj = {
-  prop1: "value1",
-  prop2: "value2",
-  prop3: "value3",
-  [s]: "value4", //変数をプロパティとして使う
-};
+function Obj() {
+  this.prop1 = "value1";
+  this.prop2 = "value2";
+  this.prop3 = "value3";
+  // this.[s] =  "value4", //変数をプロパティとして使う
+}
+Obj.prototype.hello = function () {};
+const obj = new Obj();
 Object.prototype.method = function () {}; //列挙対象に含まれる
 // Object.defineProperty(Object.prototype, "method", { enumerable: false });
 
