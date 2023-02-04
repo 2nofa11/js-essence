@@ -36,17 +36,38 @@ async function myFetch(fileName) {
   return json;
 }
 
-async function init() {
+(async function () {
   const mainUser = await myFetch("user1.json"); // ユーザ1を取得
   console.log(`--${mainUser.name}'s timeline--`);
-  //   `friendsOf${id}.json`でフレンド一覧を取得
-  const friendList = myFetch(`friendsOf${mainUser.id}.json`);
-  friendList.then(async (res) => {
-    for (const iterator of res.friendIds) {
-      const friend = await myFetch(`user${iterator}.json`);
-      const friendMsg = await myFetch(`message${friend.latestMsgId}.json`);
-      console.log(friend.name, friendMsg.message);
+  const friendList = await myFetch(`friendsOf${mainUser.id}.json`); //   `friendsOf${id}.json`でフレンド一覧を取得
+  const friendIds = new Set();
+  for (const id of friendList.friendIds) {
+    friendIds.add(myFetch(`user${id}.json`));
+  }
+  const friends = await Promise.all(friendIds);
+  console.log(friends);
+
+  const msgIds = new Set();
+  for (const friend of friends) {
+    msgIds.add(myFetch(`message${friend.latestMsgId}.json`));
+  }
+
+  const msgs = await Promise.all(msgIds);
+  console.log(msgs);
+
+  for (const friend of friends) {
+    for (const msg of msgs) {
+      if (friend.id === msg.userId) {
+        console.log(`${friend.name} says: ${msg.message}`);
+      }
     }
-  });
-}
-init();
+  }
+
+  //   friendList.then(async (res) => {
+  //     for (const iterator of res.friendIds) {
+  //       const friend = await myFetch(`user${iterator}.json`);
+  //       const friendMsg = await myFetch(`message${friend.latestMsgId}.json`);
+  //       console.log(friend.name, friendMsg.message);
+  //     }
+  //   });
+})(); //　即時関数~ww
