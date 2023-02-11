@@ -15,7 +15,6 @@
  * 初期値のオブジェクトとしてください。
  */
 const KEY = "test-data";
-const targetObj = { name: "" };
 const handler = {
   set: function (target, prop, value, receiver) {
     console.log(`[set]: ${prop}`);
@@ -24,10 +23,13 @@ const handler = {
     localStorage.setItem(KEY, json);
   },
 };
-const pxy = new Proxy(targetObj, handler);
 
+const result = localStorage.getItem(KEY);
+
+const targetObj = JSON.parse(result);
+const pxy = new Proxy(targetObj, handler);
 console.log("init", pxy);
 pxy.name = "Tom";
 console.log("change", pxy);
-pxy.name = "Sun";
+pxy.name = "piyo";
 console.log("change2", pxy);
