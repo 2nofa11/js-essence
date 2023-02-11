@@ -14,12 +14,19 @@ class MyArray extends Array {
   constructor(...args) {
     super(...args);
   }
-  push(num) {
-    super.push(num);
+  push(val) {
+    // this.push(val);
+    // console.log(this);
+    super.push(val);
     return this;
   }
+  forEach(func) {
+    for (let i = 0; i < this.length; i++) {
+      func(this[i], i, this);
+    }
+  }
   map(func) {
-    let newArry = new MyArray();
+    let newArry = new MyArray(); // 異なるインスタンスを作っている
     for (const v of this) {
       newArry.push(func(v));
     }
@@ -54,6 +61,9 @@ function double(v, i, obj) {
 
 const original = new MyArray(1, 2, 3, 4);
 
+// const result = original.forEach(function (v, i, arry) {
+//   console.log("forEach", v, i, arry);
+// });
 const result = original
   .map(double)
   .push(5)
