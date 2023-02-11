@@ -42,16 +42,20 @@ class MyArray extends Array {
     }
     return newArry;
   }
+
   print(label = "") {
     console.log(`%c ${label}`, "color: blue; font-weight: 600;", this);
     return this;
   }
-  reduce(func, init = 0) {
-    let returnVal = init;
-    for (const v of this) {
-      returnVal = func(returnVal, v);
+  reduce(func, accu) {
+    const tmpArry = [...this];
+    if (accu === undefined) {
+      accu = tmpArry.shift();
     }
-    return returnVal;
+    for (const v of tmpArry) {
+      accu = func(accu, v);
+    }
+    return accu;
   }
 }
 
@@ -67,7 +71,6 @@ const original = new MyArray(1, 2, 3, 4);
 const result = original
   .map(double)
   .push(5)
-  .print()
   .filter(function (v, i) {
     return v > 2;
   })
