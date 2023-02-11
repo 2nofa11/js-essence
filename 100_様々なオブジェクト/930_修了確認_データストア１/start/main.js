@@ -15,18 +15,32 @@
  * 初期値のオブジェクトとしてください。
  */
 const KEY = "test-data";
+// 値が変更されたときにトラップするハンドラー
 const handler = {
   set: function (target, prop, value, receiver) {
     console.log(`[set]: ${prop}`);
-    target[prop] = value;
-    const json = JSON.stringify(target);
-    localStorage.setItem(KEY, json);
+    // target[prop] = value;
+    const result = Reflect.set(target, prop, value, receiver);
+    DataSource.setLocal(KEY, target);
+    return result;
   },
 };
+class DataSource {
+  static getLocal(KEY) {
+    console.log("get form local");
+    const result = localStorage.getItem(KEY);
+    return JSON.parse(result);
+  }
+  static setLocal(KEY, target) {
+    // JSONに変換
+    console.log("set form local");
+    const json = JSON.stringify(target);
+    localStorage.setItem(KEY, json);
+  }
+}
 
-const result = localStorage.getItem(KEY);
-
-const targetObj = JSON.parse(result);
+const targetObj = DataSource.getLocal(KEY) || {}; //初期描画の時も考えるべき
+// オブジェクト、ハンドラー
 const pxy = new Proxy(targetObj, handler);
 console.log("init", pxy);
 pxy.name = "Tom";
