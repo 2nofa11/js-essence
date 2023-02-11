@@ -28,10 +28,14 @@ class IteratableObject {
     return iteratableObject;
   }
   set(key, value) {
-    const iteratableObject = this;
-    if (!(key in this)) {
-      iteratableObject[key] = value;
+    // いてもいなくても関係ないはず
+    // if (key in this) return this;
+
+    const iteratableObject = new IteratableObject();
+    for (let prop in this) {
+      iteratableObject[prop] = this[prop];
     }
+    iteratableObject[key] = value;
     return iteratableObject;
   }
   filter(func) {
@@ -59,13 +63,14 @@ const original = new IteratableObject({
   key3: "value3",
 });
 
-const result = original
-  .map(prefix)
-  .set("key4", "value4")
-  .filter(function (val, key) {
-    console.log(val, key);
-    return key === "key4";
-  });
+const result = original.set("key4", "value4").filter(function (val, key) {
+  console.log(val, key);
+  return key === "key4";
+});
+
+// for (const i of result) {
+//   console.log(i);
+// }
 
 console.log("%coriginal", "color: blue; font-weight: bold;", original);
 console.log("%cresult", "color: red; font-weight: bold;", result);
