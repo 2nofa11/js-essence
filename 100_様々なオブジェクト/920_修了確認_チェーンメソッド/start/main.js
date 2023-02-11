@@ -22,27 +22,20 @@ class IteratableObject {
   }
   map(func) {
     const iteratableObject = new IteratableObject();
-    for (let prop in this) {
-      iteratableObject[prop] = func(this[prop]);
+    for (let [k, v] of this) {
+      iteratableObject[k] = func(v);
     }
     return iteratableObject;
   }
   set(key, value) {
-    // いてもいなくても関係ないはず
-    // if (key in this) return this;
-
-    const iteratableObject = new IteratableObject();
-    for (let prop in this) {
-      iteratableObject[prop] = this[prop];
-    }
-    iteratableObject[key] = value;
-    return iteratableObject;
+    this[key] = value;
+    return this;
   }
   filter(func) {
     const iteratableObject = new IteratableObject();
-    for (let prop in this) {
-      if (func(this[prop], prop)) {
-        iteratableObject[prop] = this[prop];
+    for (let [k, v] of this) {
+      if (func(v, k)) {
+        iteratableObject[k] = this[k];
       }
     }
     return iteratableObject;
@@ -51,6 +44,16 @@ class IteratableObject {
     console.log(`%c ${label}`, "color: blue; font-weight: 600;", this);
     return this;
   }
+  forEach(func) {
+    for (let [k, v] of this) {
+      func(v, k, this);
+    }
+  }
+  *[Symbol.iterator]() {
+    for (let key in this) {
+      yield [key, this[key]];
+    }
+  } //オブジェクトに配列機能を追加している
 }
 
 function prefix(v, i, obj) {
@@ -63,17 +66,24 @@ const original = new IteratableObject({
   key3: "value3",
 });
 
-const result = original.set("key4", "value4").filter(function (val, key) {
-  console.log(val, key);
-  return key === "key4";
-});
+const result = original
+  .set("key4", "value4")
+  .map(prefix)
+  .print()
+  .filter(function (val, key) {
+    console.log(val, key);
+    return key === "key4";
+  });
 
-// for (const i of result) {
-//   console.log(i);
-// }
+for (const [k, v] of result) {
+  console.log(k, v);
+}
 
 console.log("%coriginal", "color: blue; font-weight: bold;", original);
 console.log("%cresult", "color: red; font-weight: bold;", result);
+// original.forEach((v) => {
+//   console.log(v);
+// });
 /**
  * 期待する出力結果
  * original
