@@ -20,7 +20,29 @@ class IteratableObject {
       this[prop] = obj[prop];
     }
   }
-
+  map(func) {
+    const iteratableObject = new IteratableObject();
+    for (let prop in this) {
+      iteratableObject[prop] = func(this[prop]);
+    }
+    return iteratableObject;
+  }
+  set(key, value) {
+    const iteratableObject = this;
+    if (!(key in this)) {
+      iteratableObject[key] = value;
+    }
+    return iteratableObject;
+  }
+  filter(func) {
+    const iteratableObject = new IteratableObject();
+    for (let prop in this) {
+      if (func(this[prop], prop)) {
+        iteratableObject[prop] = this[prop];
+      }
+    }
+    return iteratableObject;
+  }
   print(label = "") {
     console.log(`%c ${label}`, "color: blue; font-weight: 600;", this);
     return this;
