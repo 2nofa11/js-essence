@@ -12,28 +12,34 @@ const p = Promise.resolve();
 let _dirty;
 
 class DataSource {
+  static async get(KEY) {
+    return DataSource.getLocal(KEY) || (await DataSource.getRemote()) || {};
+  }
+  static async set(KEY, target) {
+    return DataSource.getLocal(KEY) || (await DataSource.getRemote()) || {};
+  }
   static getLocal(KEY) {
     console.log("get from local");
     const result = localStorage.getItem(KEY);
     return JSON.parse(result);
   }
-  static async getServer() {
+  static async getRemote() {
     console.log("get from server");
-    const res = await fetch("../json/test-data.json");
-    const json = await res.json();
-    console.log(json);
-    return json;
+    const res = await fetch(`../json/${KEY}.json`);
+    return await res.json();
   }
   static setLocal(KEY, target) {
     console.log("set to local");
     const json = JSON.stringify(target);
     localStorage.setItem(KEY, json);
   }
+  static async setRemote(KEY, target) {
+    console.log("set to server");
+  }
 }
 
-main = async () => {
-  const targetObj =
-    DataSource.getLocal(KEY) || (await DataSource.getServer()) || {};
+(async () => {
+  const targetObj = DataSource.get(KEY);
 
   const pxy = new Proxy(targetObj, {
     set(target, prop, value, receiver) {
@@ -57,6 +63,4 @@ main = async () => {
   console.log("change", pxy);
   pxy.name = "Tim";
   console.log("change2", pxy);
-};
-
-main();
+})();
