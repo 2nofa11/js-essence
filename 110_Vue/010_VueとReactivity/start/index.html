@@ -1,3 +1,6 @@
 <script type="module">
-
+  import { effect, reactive } from "./reactivity.esm-browser.js";
+  const obj = reactive({ a: 0 });
+  effect(() => console.log(obj.a)); //エフェクトに登録された関数が実行される
+  obj.a = 1; // 値が変更されたタイミングで、伴う変更が発生する
 </script>
