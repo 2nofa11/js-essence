@@ -1,25 +1,42 @@
 const handler = {
   get(target, key, receiver) {
     const res = Reflect.get(target, key, receiver);
-    console.log('%c[reactive:get]', 'background: green; color: white;', target, key, res);
+    console.log(
+      "%c[reactive:get]",
+      "background: green; color: white;",
+      target,
+      key,
+      res
+    );
     track(target, key);
     return res;
   },
   set(target, key, value, receiver) {
     const res = Reflect.set(target, key, value, receiver);
-    console.log('%c[reactive:set]', 'background: red; color: white;', target, key, value);
+    console.log(
+      "%c[reactive:set]",
+      "background: red; color: white;",
+      target,
+      key,
+      value
+    );
     trigger(target, key);
     return res;
-  }
-}
+  },
+};
 function reactive(target) {
   return new Proxy(target, handler);
 }
 
 let activeEffect = null;
-function effect(fn) {
+// 値がわたってこなかった場合でもcomputedが使用可能になる？
+function effect(fn, { computed = false } = {}) {
   try {
     activeEffect = fn;
+    activeEffect.computed = computed;
+    if (computed) {
+      activeEffect.dirty = true;
+    }
     activeEffect();
     return activeEffect;
   } finally {
@@ -44,7 +61,13 @@ function track(target, key) {
   }
 
   if (!deps.has(activeEffect)) {
-    console.log('%c[effect:register]', 'background: blue; color: white;', target, key, activeEffect);
+    console.log(
+      "%c[effect:register]",
+      "background: blue; color: white;",
+      target,
+      key,
+      activeEffect
+    );
     deps.add(activeEffect);
   }
 }
@@ -58,20 +81,35 @@ function trigger(target, key) {
   if (!deps) {
     return;
   }
-  deps.forEach(effect => effect());
+  deps.forEach((effect) => {
+    if (effect.computed) {
+      effect.dirty = true;
+    } else {
+      effect();
+    }
+  });
 }
 
 function computed(getter) {
-  let computed;
-  const runner = effect(getter);
+  // クロージャーで値を保持し続ける
+  let computed, value;
+  const runner = effect(getter, { computed: true });
 
   computed = {
     get value() {
-      const value = runner();
-      console.log('%c[computed:refresh]', 'background: purple; color: white;', value);
+      if (runner.dirty) {
+        value = runner();
+        runner.dirty = false;
+        console.log(
+          "%c[computed:refresh]",
+          "background: purple; color: white;",
+          value
+        );
+      }
+
       return value;
-    }
-  }
+    },
+  };
   return computed;
 }
 export { effect, trigger, reactive, computed };
