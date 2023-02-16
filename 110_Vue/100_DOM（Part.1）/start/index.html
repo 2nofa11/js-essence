@@ -1,11 +1,14 @@
 <!DOCTYPE html>
 <html>
-
-<body>
-  <button id="inc">Push Me</button>
-  <script>
-
-  </script>
-</body>
-
+  <body>
+    <button id="inc">Push Me</button>
+    <script>
+      // domツリーとは
+      // queryセレクターとは
+      // ノードというのはDOMインターフェースを持ったオブジェクト
+      const body = document.querySelector("body");
+      const button = body.querySelector("#inc"); // 探す範囲を限定する
+      console.dir(button);
+    </script>
+  </body>
 </html>
