@@ -1,23 +1,47 @@
 <!DOCTYPE html>
 <html>
+  <body>
+    <button id="inc">Push Me</button>
+    <script>
+      const nodeOps = {
+        /*大規模なプリケーションでコードを追いやすくなる、仕様変更が少なくなる*/
+        qs(selector, scope) {
+          return (scope || document).querySelector(selector);
+        },
+        create(type) {
+          return document.createElement(type);
+        },
+        setAttr(target, key, value) {
+          target.setAttribute(key, value);
+        },
+        append(parent, target) {
+          parent.appendChild(target);
+        },
+        html(target, value) {
+          target.innerHTML = value;
+        },
+        on(target, eventType, callback) {
+          target.addEventListener(eventType, callback);
+        },
+      };
 
-<body>
-  <button id="inc">Push Me</button>
-  <script>
-    const body = document.querySelector('body');
-    const div = document.createElement('div');
-    div.innerHTML = 0;
-    div.setAttribute('class', 'green');
-    body.appendChild(div);
-    const button = body.querySelector('#inc');
-    console.dir(div)
-  </script>
-  <style>
-    .green {
-      color: green;
-      font-weight: 600;
-    }
-  </style>
-</body>
-
+      const body = nodeOps.qs("body");
+      const div = nodeOps.create("div");
+      let i = 0;
+      nodeOps.setAttr(div, "class", "green");
+      nodeOps.append(body, div);
+      const button = nodeOps.qs("#inc", body);
+      nodeOps.html(div, i);
+      nodeOps.on(button, "click", () => {
+        nodeOps.html(div, ++i);
+      });
+      console.dir(div);
+    </script>
+    <style>
+      .green {
+        color: green;
+        font-weight: 600;
+      }
+    </style>
+  </body>
 </html>
