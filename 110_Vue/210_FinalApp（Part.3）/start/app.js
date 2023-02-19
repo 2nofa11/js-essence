@@ -1,18 +1,29 @@
-import { nodeOps } from './nodeOps.js';
-import { createVNode, patch } from './renderer.js';
+import { nodeOps } from "./nodeOps.js";
+import { createVNode, patch } from "./renderer.js";
+import { reactive, effect, computed } from "./reactive.js";
 
 function createApp(args) {
-    const { render } = args;
+  const { render, data } = args;
 
-    const app = {};
-    app.mount = function(selector) {
-        const container = nodeOps.qs(selector);
-        app.vnode = createVNode();
-        const nextVNode = render();
-        console.log('%c[patch]', 'background: orange; color: white;', app.vnode, nextVNode);
-        patch(app.vnode, nextVNode, container);
-    }
-    return app;
+  const app = {};
+
+  app.data = reactive(data());
+  app.mount = function (selector) {
+    const container = nodeOps.qs(selector);
+    app.vnode = createVNode();
+    effect(() => {
+      const nextVNode = render.call(app);
+      console.log(
+        "%c[patch]",
+        "background: orange; color: white;",
+        app.vnode,
+        nextVNode
+      );
+      patch(app.vnode, nextVNode, container);
+      app.vnode = nextVNode;
+    });
+  };
+  return app;
 }
 
 export { createApp, createVNode as h };
