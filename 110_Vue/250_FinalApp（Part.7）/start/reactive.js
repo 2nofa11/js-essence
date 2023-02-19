@@ -71,7 +71,7 @@ function track(target, key) {
     deps.add(activeEffect);
   }
 }
-
+import { queueJob } from "./scheduler.js";
 function trigger(target, key) {
   const depsMap = targetMap.get(target);
   if (!depsMap) {
@@ -85,7 +85,11 @@ function trigger(target, key) {
     if (effect.computed) {
       effect.dirty = true;
     } else {
-      effect();
+      if (effect.lazy) {
+        queueJob(effect);
+      } else {
+        effect();
+      }
     }
   });
 }

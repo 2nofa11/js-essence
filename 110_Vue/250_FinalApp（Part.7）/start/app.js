@@ -6,40 +6,16 @@ function createApp(args) {
   const { data, computed: computedData, methods, render } = args;
 
   const app = {};
-
   const rawData = data();
-  const ctx = { ...rawData, ...computedData, ...methods };
-
-  app.publicCtx = new Proxy(ctx, {
-    get(target, key, receiver) {
-      if (rawData.hasOwnProperty(key)) {
-        return app.data[key];
-      } else if (computedData.hasOwnProperty(key)) {
-        return app.computed[key].value;
-      } else {
-        return Reflect.get(target, key, receiver);
-      }
-    },
-    set(target, key, value, receiver) {
-      if (rawData.hasOwnProperty(key)) {
-        const res = (app.data[key] = value);
-        return res;
-      }
-    },
-  });
-  console.log(ctx);
-
-  app.methods = methods;
-
+  app.publicCtx = createPublicCtx(app, rawData, computedData, methods);
   app.data = reactive(rawData);
+  app.computed = createComputedData(app, computedData);
+  app.mount = createMountFn(app, render);
+  return app;
+}
 
-  app.computed = {};
-  for (const prop in computedData) {
-    const c = computed(computedData[prop], app.publicCtx);
-    app.computed[prop] = c;
-  }
-
-  app.mount = function (selector) {
+function createMountFn(app, render) {
+  return function (selector) {
     const container = nodeOps.qs(selector);
     app.vnode = createVNode();
     effect(
@@ -57,7 +33,36 @@ function createApp(args) {
       { lazy: true }
     );
   };
-  return app;
+}
+function createPublicCtx(app, rawData, computedData, methods) {
+  const ctx = { ...rawData, ...computedData, ...methods };
+
+  return new Proxy(ctx, {
+    get(target, key, receiver) {
+      if (rawData.hasOwnProperty(key)) {
+        return Reflect.get(app.data, key);
+      } else if (computedData.hasOwnProperty(key)) {
+        return Reflect.get(app.computed, key).value;
+      } else {
+        return Reflect.get(target, key, receiver);
+      }
+    },
+    set(target, key, value, receiver) {
+      if (rawData.hasOwnProperty(key)) {
+        return Reflect.set(app.data, key, value);
+      }
+    },
+  });
 }
 
+function createComputedData({ publicCtx }, computedData) {
+  const res = {};
+  for (const prop in computedData) {
+    const c = computed(computedData[prop], publicCtx);
+    res[prop] = c;
+  }
+  return res;
+}
+
+export { nextTick } from "./scheduler.js";
 export { createApp, createVNode as h };
